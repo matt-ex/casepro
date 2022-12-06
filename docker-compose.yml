@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  app:
+    build: 
+      context: .
+    ports:
+      - "8000:8000"
+    networks:
+      - casepro_network
+    depends_on:
+      - bd
+      - redis
+    entrypoint: ["bash", "-c", "/app/start-app.sh"]
+  bd:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /data/postgres
+    volumes:
+       - ./.docker/volumes/postgres:/data/postgres 
+    ports:
+      - "5432:5432"
+    networks:
+      - casepro_network
+    restart: unless-stopped
+  redis:
+    container_name: redis
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - casepro_network
+    restart: unless-stopped
+
+networks:
+  casepro_network:
+    driver: bridge
+  
